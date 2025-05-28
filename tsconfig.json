@@ -1,34 +1,24 @@
 {
-    "compilerOptions": {
-        "target": "es6",
-        "module": "commonjs",
-        "strict": true,
-        "esModuleInterop": true,
-        "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true,
-        "moduleResolution": "node",
-        "outDir": "./dist",
-        "emitDecoratorMetadata": true,
-        "experimentalDecorators": true,
-        "sourceMap": false,
-        "strictPropertyInitialization": false,
-        "baseUrl": "./src",
-        "typeRoots": ["./node_modules/@types", "src/@types"],
-        "paths": {
-            "*": ["*", "src/*"],
-            "@routes/*": ["routes/*"],
-            "@entities/*": ["entities/*"],
-            "@controllers/*": ["controllers/*"],
-            "@services/*": ["services/*"],
-            "@dtos/*": ["dtos/*"],
-            "@constants/*": ["constants/*"],
-            "@interfaces/*": ["interfaces/*"],
-            "@schemas/*": ["entities/schemas/"],
-            "@factories/*": ["factories/*"],
-            "@seeds/*": ["./seeds/*"],
-            "@data/*": ["data/*"]
-        }
-    },
-    "include": ["./src/**/*", "./src/@types/**/*.d.ts", "tests/**/*"],
-    "exclude": ["node_modules"]
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2023",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  }
 }
