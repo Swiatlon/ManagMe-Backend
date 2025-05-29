@@ -15,8 +15,10 @@ export class TaskService {
       description: createTaskDto.description,
       priority: createTaskDto.priority,
       status: createTaskDto.status,
-      storyId: new Types.ObjectId(createTaskDto.storyId),
-      assignedUserId: new Types.ObjectId(createTaskDto.assignedUserId),
+      story: new Types.ObjectId(createTaskDto.storyId),
+      assignedUser: createTaskDto.assignedUserId
+        ? new Types.ObjectId(createTaskDto.assignedUserId)
+        : undefined,
       estimatedHours: createTaskDto.estimatedHours,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -33,9 +35,11 @@ export class TaskService {
 
   async findOne(id: string): Promise<Task> {
     const task = await this.taskRepository.findById(id);
+
     if (!task) {
       throw new NotFoundException(`Task with ID ${id} not found`);
     }
+
     return task;
   }
 
@@ -46,7 +50,7 @@ export class TaskService {
       priority: updateTaskDto.priority,
       status: updateTaskDto.status,
       storyId: new Types.ObjectId(updateTaskDto.storyId),
-      assignedUserId: new Types.ObjectId(updateTaskDto.assignedUserId),
+      assignedUser: new Types.ObjectId(updateTaskDto.assignedUserId),
       estimatedHours: updateTaskDto.estimatedHours,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -81,5 +85,15 @@ export class TaskService {
 
   async findByStatus(status: string): Promise<Task[]> {
     return this.taskRepository.findByStatus(status);
+  }
+
+  async completeTask(id: string): Promise<Task> {
+    const task = await this.taskRepository.completeTask(id);
+
+    if (!task) {
+      throw new NotFoundException(`Task with ID ${id} not found`);
+    }
+
+    return task;
   }
 }

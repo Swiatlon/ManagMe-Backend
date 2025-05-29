@@ -17,13 +17,13 @@ export class Story {
   priority: Priority;
 
   @Prop({ type: Types.ObjectId, ref: "Project", required: true })
-  projectId: Types.ObjectId;
+  project: Types.ObjectId;
 
   @Prop({ type: String, enum: Status, default: Status.Todo })
   status: Status;
 
   @Prop({ type: Types.ObjectId, ref: "User", required: true })
-  ownerId: Types.ObjectId;
+  owner: Types.ObjectId;
 }
 
 export const StorySchema = SchemaFactory.createForClass(Story);

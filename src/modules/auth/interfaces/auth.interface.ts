@@ -29,4 +29,11 @@ export interface AuthResponse {
 
 export interface RefreshResponse {
   accessToken: string;
+  user: {
+    id: string;
+    identifier: string;
+    firstName: string;
+    lastName: string;
+    role: Role;
+  };
 }

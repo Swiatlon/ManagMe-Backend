@@ -15,8 +15,8 @@ export class StoryService {
       description: createStoryDto.description,
       priority: createStoryDto.priority,
       status: createStoryDto.status,
-      projectId: new Types.ObjectId(createStoryDto.projectId),
-      ownerId: new Types.ObjectId(createStoryDto.ownerId),
+      project: new Types.ObjectId(createStoryDto.projectId),
+      owner: new Types.ObjectId(createStoryDto.ownerId),
     };
 
     return this.storyRepository.create(storyData);
@@ -40,8 +40,8 @@ export class StoryService {
       description: updateStoryDto.description,
       priority: updateStoryDto.priority,
       status: updateStoryDto.status,
-      projectId: new Types.ObjectId(updateStoryDto.projectId),
-      ownerId: new Types.ObjectId(updateStoryDto.ownerId),
+      project: new Types.ObjectId(updateStoryDto.projectId),
+      owner: new Types.ObjectId(updateStoryDto.ownerId),
     };
 
     const story = await this.storyRepository.update(id, storyData);

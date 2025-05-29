@@ -52,6 +52,7 @@ export default tseslint.config(
         },
       ],
       "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-extraneous-class": ['off'],
       "no-console": "off",
       "prefer-const": "error",
       "@typescript-eslint/explicit-module-boundary-types": "warn",

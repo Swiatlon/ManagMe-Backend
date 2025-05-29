@@ -16,17 +16,17 @@ export class StoryRepository implements BaseRepository<Story> {
   }
 
   async findAll(): Promise<Story[]> {
-    return this.storyModel.find().populate("projectId ownerId").exec();
+    return this.storyModel.find().populate("project owner").exec();
   }
 
   async findById(id: string): Promise<Story | null> {
-    return this.storyModel.findById(id).populate("projectId ownerId").exec();
+    return this.storyModel.findById(id).populate("project owner").exec();
   }
 
   async update(id: string, story: Partial<Story>): Promise<Story | null> {
     return this.storyModel
       .findByIdAndUpdate(id, story, { new: true })
-      .populate("projectId ownerId")
+      .populate("project owner")
       .exec();
   }
 
@@ -37,22 +37,16 @@ export class StoryRepository implements BaseRepository<Story> {
 
   async findByProjectId(projectId: string): Promise<Story[]> {
     return this.storyModel
-      .find({ projectId })
-      .populate("projectId ownerId")
+      .find({ project: projectId })
+      .populate("project owner")
       .exec();
   }
 
   async findByOwnerId(ownerId: string): Promise<Story[]> {
-    return this.storyModel
-      .find({ ownerId })
-      .populate("projectId ownerId")
-      .exec();
+    return this.storyModel.find({ ownerId }).populate("project owner").exec();
   }
 
   async findByStatus(status: string): Promise<Story[]> {
-    return this.storyModel
-      .find({ status })
-      .populate("projectId ownerId")
-      .exec();
+    return this.storyModel.find({ status }).populate("project owner").exec();
   }
 }

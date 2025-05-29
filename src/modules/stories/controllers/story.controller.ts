@@ -22,20 +22,7 @@ export class StoryController {
   }
 
   @Get()
-  findAll(
-    @Query("projectId") projectId?: string,
-    @Query("ownerId") ownerId?: string,
-    @Query("status") status?: string,
-  ) {
-    if (projectId) {
-      return this.storyService.findByProjectId(projectId);
-    }
-    if (ownerId) {
-      return this.storyService.findByOwnerId(ownerId);
-    }
-    if (status) {
-      return this.storyService.findByStatus(status);
-    }
+  findAll() {
     return this.storyService.findAll();
   }
 

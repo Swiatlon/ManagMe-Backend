@@ -3,11 +3,10 @@ import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { LoginDto } from "../dto/login.dto";
-import { RefreshTokenDto } from "../dto/refresh.dto";
 import { RegisterDto } from "../dto/register.dto";
+import * as bcrypt from "bcrypt";
 import {
   AuthResponse,
-  RefreshResponse,
   RefreshPayload,
   JwtPayload,
 } from "../interfaces/auth.interface";
@@ -23,25 +22,22 @@ export class AuthService {
   async register(registerDto: RegisterDto): Promise<AuthResponse> {
     const user = await this.usersService.create(registerDto);
 
-    const tokens = await this.generateTokens(
-      {
-        sub: user._id.toString(),
-        email: user.email,
-        role: user.role,
-      },
-      false,
-    );
+    const tokens = await this.generateTokens({
+      sub: user._id as string,
+      identifier: user.identifier,
+      role: user.role,
+    });
 
     await this.usersService.updateRefreshToken(
-      user._id.toString(),
+      user._id as string,
       await this.hashToken(tokens.refreshToken),
     );
 
     return {
       ...tokens,
       user: {
-        id: user._id.toString(),
-        email: user.email,
+        id: user._id as string,
+        identifier: user.identifier,
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role,
@@ -54,18 +50,16 @@ export class AuthService {
       loginDto.identifier,
       loginDto.password,
     );
+
     if (!user) {
       throw new UnauthorizedException("Invalid credentials");
     }
 
-    const tokens = await this.generateTokens(
-      {
-        sub: user.id,
-        email: user.email,
-        role: user.role,
-      },
-      loginDto.rememberMe || false,
-    );
+    const tokens = await this.generateTokens({
+      sub: user.id,
+      identifier: user.identifier,
+      role: user.role,
+    });
 
     await this.usersService.updateRefreshToken(
       user.id,
@@ -76,7 +70,7 @@ export class AuthService {
       ...tokens,
       user: {
         id: user.id,
-        email: user.email,
+        identifier: user.identifier,
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role,
@@ -84,22 +78,30 @@ export class AuthService {
     };
   }
 
-  async refreshTokens(refreshDto: RefreshTokenDto): Promise<RefreshResponse> {
+  async refreshTokens(refreshToken: string): Promise<{
+    accessToken: string;
+    refreshToken: string;
+    user: {
+      id: string;
+      identifier: string;
+      firstName: string;
+      lastName: string;
+      role: string;
+    };
+  }> {
     try {
-      const payload = this.jwtService.verify<RefreshPayload>(
-        refreshDto.refreshToken,
-        {
-          secret: this.configService.get<string>("JWT_REFRESH_SECRET"),
-        },
-      );
+      const payload = this.jwtService.verify<RefreshPayload>(refreshToken, {
+        secret: this.configService.get<string>("JWT_REFRESH_SECRET"),
+      });
 
       const user = await this.usersService.findById(payload.sub);
+
       if (!user?.refreshToken) {
         throw new UnauthorizedException("Invalid refresh token");
       }
 
       const refreshTokenMatches = await bcrypt.compare(
-        refreshDto.refreshToken,
+        refreshToken,
         user.refreshToken,
       );
 
@@ -107,21 +109,28 @@ export class AuthService {
         throw new UnauthorizedException("Invalid refresh token");
       }
 
-      const tokens = await this.generateTokens(
-        {
-          sub: user._id.toString(),
-          email: user.email,
-          role: user.role,
-        },
-        refreshDto.rememberMe || false,
-      );
+      const tokens = await this.generateTokens({
+        sub: user._id as string,
+        identifier: user.identifier,
+        role: user.role,
+      });
 
       await this.usersService.updateRefreshToken(
-        user._id.toString(),
+        user._id as string,
         await this.hashToken(tokens.refreshToken),
       );
 
-      return { accessToken: tokens.accessToken };
+      return {
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        user: {
+          id: user._id as string,
+          identifier: user.identifier,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role,
+        },
+      };
     } catch (error) {
       throw new UnauthorizedException("Invalid refresh token");
     }
@@ -131,9 +140,10 @@ export class AuthService {
     await this.usersService.updateRefreshToken(userId, null);
   }
 
-  async validateUser(identifier: string, password: string): Promise<any> {
+  async validateUser(identifier: string, password: string) {
     const user = await this.usersService.findByIdentifier(identifier);
-    if (!user?.isActive) {
+
+    if (!user) {
       return null;
     }
 
@@ -147,22 +157,22 @@ export class AuthService {
     }
 
     return {
-      id: user._id.toString(),
-      email: user.email,
+      id: user._id as string,
+      identifier: user.identifier,
       firstName: user.firstName,
       lastName: user.lastName,
       role: user.role,
     };
   }
 
-  private async generateTokens(payload: JwtPayload, rememberMe: boolean) {
-    const accessTokenExpiration = rememberMe
-      ? this.configService.get<string>("JWT_ACCESS_EXPIRATION_LONG")
-      : this.configService.get<string>("JWT_ACCESS_EXPIRATION");
+  private async generateTokens(payload: JwtPayload) {
+    const accessTokenExpiration = this.configService.get<string>(
+      "JWT_ACCESS_EXPIRATION_LONG",
+    );
 
-    const refreshTokenExpiration = rememberMe
-      ? this.configService.get<string>("JWT_REFRESH_EXPIRATION_LONG")
-      : this.configService.get<string>("JWT_REFRESH_EXPIRATION");
+    const refreshTokenExpiration = this.configService.get<string>(
+      "JWT_REFRESH_EXPIRATION_LONG",
+    );
 
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
@@ -170,7 +180,7 @@ export class AuthService {
         expiresIn: accessTokenExpiration,
       }),
       this.jwtService.signAsync(
-        { sub: payload.sub, email: payload.email },
+        { sub: payload.sub, identifier: payload.identifier },
         {
           secret: this.configService.get<string>("JWT_REFRESH_SECRET"),
           expiresIn: refreshTokenExpiration,

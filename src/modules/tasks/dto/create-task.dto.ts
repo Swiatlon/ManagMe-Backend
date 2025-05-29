@@ -40,6 +40,5 @@ export class CreateTaskDto {
   endDate?: string;
 
   @IsOptional()
-  @IsMongoId()
   assignedUserId?: string;
 }

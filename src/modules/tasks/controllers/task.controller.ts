@@ -7,6 +7,9 @@ import {
   Param,
   Delete,
   Query,
+  HttpCode,
+  HttpStatus,
+  Put,
 } from "@nestjs/common";
 import { TaskService } from "../services/task.service";
 import { CreateTaskDto } from "../dto/create-task.dto";
@@ -22,20 +25,7 @@ export class TaskController {
   }
 
   @Get()
-  findAll(
-    @Query("storyId") storyId?: string,
-    @Query("assignedUserId") assignedUserId?: string,
-    @Query("status") status?: string,
-  ) {
-    if (storyId) {
-      return this.taskService.findByStoryId(storyId);
-    }
-    if (assignedUserId) {
-      return this.taskService.findByAssignedUserId(assignedUserId);
-    }
-    if (status) {
-      return this.taskService.findByStatus(status);
-    }
+  findAll() {
     return this.taskService.findAll();
   }
 
@@ -47,6 +37,12 @@ export class TaskController {
   @Patch(":id")
   update(@Param("id") id: string, @Body() updateTaskDto: UpdateTaskDto) {
     return this.taskService.update(id, updateTaskDto);
+  }
+
+  @Put(":id/complete")
+  @HttpCode(HttpStatus.OK)
+  completeTask(@Param("id") id: string) {
+    return this.taskService.completeTask(id);
   }
 
   @Delete(":id")

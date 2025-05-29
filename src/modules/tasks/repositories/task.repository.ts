@@ -14,20 +14,17 @@ export class TaskRepository implements BaseRepository<Task> {
   }
 
   async findAll(): Promise<Task[]> {
-    return this.taskModel.find().populate("storyId assignedUserId").exec();
+    return this.taskModel.find().populate("story assignedUser").exec();
   }
 
   async findById(id: string): Promise<Task | null> {
-    return this.taskModel
-      .findById(id)
-      .populate("storyId assignedUserId")
-      .exec();
+    return this.taskModel.findById(id).populate("story assignedUser").exec();
   }
 
   async update(id: string, task: Partial<Task>): Promise<Task | null> {
     return this.taskModel
       .findByIdAndUpdate(id, task, { new: true })
-      .populate("storyId assignedUserId")
+      .populate("story assignedUser")
       .exec();
   }
 
@@ -39,21 +36,37 @@ export class TaskRepository implements BaseRepository<Task> {
   async findByStoryId(storyId: string): Promise<Task[]> {
     return this.taskModel
       .find({ storyId })
-      .populate("storyId assignedUserId")
+      .populate("story assignedUser")
       .exec();
   }
 
   async findByAssignedUserId(assignedUserId: string): Promise<Task[]> {
     return this.taskModel
       .find({ assignedUserId })
-      .populate("storyId assignedUserId")
+      .populate("story assignedUser")
       .exec();
   }
 
   async findByStatus(status: string): Promise<Task[]> {
     return this.taskModel
       .find({ status })
-      .populate("storyId assignedUserId")
+      .populate("story assignedUser")
+      .exec();
+  }
+
+  async completeTask(id: string): Promise<Task | null> {
+    return this.taskModel
+      .findByIdAndUpdate(
+        id,
+        {
+          status: "done",
+          updatedAt: new Date(),
+          endDate: new Date(),
+          completedAt: new Date(),
+        },
+        { new: true },
+      )
+      .populate("story assignedUser")
       .exec();
   }
 }

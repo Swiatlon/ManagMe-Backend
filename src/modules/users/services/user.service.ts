@@ -1,15 +1,15 @@
 import { Role } from "@/common/enums/role.enum";
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { CreateUserDto } from "../dto/create-user.dto";
 import { UserRepository } from "../repositories/user.repository";
 import { UserDocument } from "../schemas/user.schema";
+import { CreateUserData } from "../interfaces/user.interfaces";
 
 @Injectable()
 export class UsersService {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async create(createUserDto: CreateUserDto): Promise<UserDocument> {
-    return this.userRepository.create(createUserDto);
+  async create(userData: CreateUserData): Promise<UserDocument> {
+    return this.userRepository.create(userData);
   }
 
   async findAll(): Promise<UserDocument[]> {
@@ -18,17 +18,6 @@ export class UsersService {
 
   async findOne(id: string): Promise<UserDocument> {
     const user = await this.userRepository.findById(id);
-    if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
-    }
-    return user;
-  }
-
-  async update(
-    id: string,
-    updateUserDto: UpdateUserDto,
-  ): Promise<UserDocument> {
-    const user = await this.userRepository.update(id, updateUserDto);
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
@@ -46,7 +35,6 @@ export class UsersService {
     return this.userRepository.findByRole(role);
   }
 
-  // Auth-specific methods
   async findByIdentifier(identifier: string): Promise<UserDocument | null> {
     return this.userRepository.findByIdentifier(identifier);
   }

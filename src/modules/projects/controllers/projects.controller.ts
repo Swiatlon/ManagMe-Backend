@@ -26,6 +26,7 @@ export class ProjectController {
     if (name) {
       return this.projectService.findByName(name);
     }
+
     return this.projectService.findAll();
   }
 

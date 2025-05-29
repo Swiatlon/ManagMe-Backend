@@ -16,8 +16,8 @@ import { UsersModule } from "src/modules/users/users.module";
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: getDatabaseConfig,
       inject: [ConfigService],
+      useFactory: getDatabaseConfig,
     }),
     AuthModule,
     UsersModule,

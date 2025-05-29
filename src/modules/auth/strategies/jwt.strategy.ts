@@ -11,21 +11,31 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private configService: ConfigService,
     private usersService: UsersService,
   ) {
+    const jwtSecret = configService.get<string>("JWT_ACCESS_SECRET");
+
+    if (!jwtSecret) {
+      throw new Error(
+        "JWT_ACCESS_SECRET is not defined in environment variables",
+      );
+    }
+
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>("JWT_ACCESS_SECRET"),
+      secretOrKey: jwtSecret,
     });
   }
 
   async validate(payload: JwtPayload) {
     const user = await this.usersService.findById(payload.sub);
-    if (!user?.isActive) {
-      throw new UnauthorizedException();
+
+    if (!user) {
+      throw new UnauthorizedException("User not found");
     }
+
     return {
-      id: user._id.toString(),
-      email: user.email,
+      id: user._id as string,
+      identifier: user.identifier,
       role: user.role,
     };
   }

@@ -17,7 +17,7 @@ export class Task {
   priority: TaskPriority;
 
   @Prop({ type: Types.ObjectId, ref: "Story", required: true })
-  storyId: Types.ObjectId;
+  story: Types.ObjectId;
 
   @Prop({ required: true })
   estimatedHours: number;
@@ -32,7 +32,7 @@ export class Task {
   endDate?: string;
 
   @Prop({ type: Types.ObjectId, ref: "User" })
-  assignedUserId?: Types.ObjectId;
+  assignedUser?: Types.ObjectId;
 }
 
 export const TaskSchema = SchemaFactory.createForClass(Task);

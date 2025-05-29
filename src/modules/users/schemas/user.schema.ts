@@ -17,13 +17,10 @@ export class User {
 
   // New fields for authentication
   @Prop({ required: true, unique: true })
-  email: string;
+  identifier: string;
 
   @Prop({ required: true })
   password: string;
-
-  @Prop({ default: true })
-  isActive: boolean;
 
   @Prop()
   refreshToken?: string;
@@ -33,7 +30,7 @@ export const UserSchema = SchemaFactory.createForClass(User);
 
 UserSchema.set("toJSON", {
   transform: function (doc, ret) {
-    ret.id = ret._id;
+    ret.id = ret._id as string;
     delete ret._id;
     delete ret.__v;
     delete ret.password; // Never expose password in JSON
