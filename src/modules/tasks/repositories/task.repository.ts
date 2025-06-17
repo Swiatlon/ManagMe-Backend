@@ -60,9 +60,9 @@ export class TaskRepository implements BaseRepository<Task> {
         id,
         {
           status: "done",
-          updatedAt: new Date(),
-          endDate: new Date(),
-          completedAt: new Date(),
+          updatedAt: new Date().toISOString(),
+          endDate: new Date().toISOString(),
+          completedAt: new Date().toISOString(),
         },
         { new: true },
       )
